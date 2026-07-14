@@ -2,6 +2,14 @@ const header = document.querySelector(".site-header");
 const menuButton = document.querySelector(".menu-toggle");
 const menuLinks = document.querySelectorAll(".primary-menu a");
 
+window.setTimeout(() => {
+  document.body.dataset.introActive = "false";
+}, 4300);
+
+function setHeaderScrolled() {
+  header.dataset.navScrolled = String(window.scrollY > 12);
+}
+
 function setMenu(open) {
   header.dataset.menuOpen = String(open);
   menuButton.setAttribute("aria-expanded", String(open));
@@ -21,6 +29,87 @@ window.addEventListener("resize", () => {
     setMenu(false);
   }
 });
+
+window.addEventListener("scroll", setHeaderScrolled, { passive: true });
+setHeaderScrolled();
+
+const revealItems = document.querySelectorAll([
+  ".section-intro",
+  ".impact-card",
+  ".process-card",
+  ".experience-list article",
+  ".case-card",
+  ".work-frame",
+  ".contact h2",
+  ".contact-links",
+].join(", "));
+const revealMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+if (revealItems.length > 0 && !revealMotion.matches) {
+  document.body.dataset.reveal = "true";
+
+  revealItems.forEach((item) => {
+    item.classList.add("reveal-item");
+
+    if (item.matches(".impact-card, .process-card, .case-card")) {
+      const siblings = Array.from(item.parentElement.children).filter((child) => child.matches(".impact-card, .process-card, .case-card"));
+      item.style.setProperty("--reveal-delay", `${Math.min(siblings.indexOf(item), 3) * 45}ms`);
+    }
+  });
+
+  if ("IntersectionObserver" in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      rootMargin: "0px 0px -12% 0px",
+      threshold: 0.16,
+    });
+
+    revealItems.forEach((item) => revealObserver.observe(item));
+  } else {
+    revealItems.forEach((item) => item.classList.add("is-visible"));
+  }
+}
+
+const parallaxMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const parallaxItems = document.querySelectorAll(".case-card, .work-frame img");
+let parallaxTicking = false;
+
+function updateParallax() {
+  const viewportCenter = window.innerHeight / 2;
+
+  parallaxItems.forEach((item) => {
+    const rect = item.getBoundingClientRect();
+    const itemCenter = rect.top + rect.height / 2;
+    const progress = Math.max(-1, Math.min(1, (itemCenter - viewportCenter) / window.innerHeight));
+
+    if (item.matches(".case-card")) {
+      item.style.setProperty("--case-line-shift", `${(progress * -18).toFixed(2)}px`);
+    } else {
+      item.style.setProperty("--work-image-shift", `${(progress * -14).toFixed(2)}px`);
+    }
+  });
+
+  parallaxTicking = false;
+}
+
+function requestParallaxUpdate() {
+  if (!parallaxTicking) {
+    requestAnimationFrame(updateParallax);
+    parallaxTicking = true;
+  }
+}
+
+if (parallaxItems.length > 0 && !parallaxMotion.matches && window.matchMedia("(min-width: 981px)").matches) {
+  window.addEventListener("scroll", requestParallaxUpdate, { passive: true });
+  window.addEventListener("resize", requestParallaxUpdate);
+  requestParallaxUpdate();
+}
 
 const ambientCanvas = document.querySelector(".ambient-canvas");
 
@@ -77,14 +166,15 @@ if (ambientCanvas) {
 
   function draw(now) {
     const elapsed = (now - start) / 1000;
+    const introActive = document.body.dataset.introActive === "true";
     context.clearRect(0, 0, width, height);
 
     pointer.x += (pointer.tx - pointer.x) * 0.08;
     pointer.y += (pointer.ty - pointer.y) * 0.08;
 
-    const scale = Math.min(width, height) * (width < 760 ? 0.82 : 0.72);
-    const centerX = width * (0.24 + Math.sin(elapsed * 0.055) * 0.12 + Math.sin(elapsed * 0.018) * 0.08);
-    const centerY = height * (0.34 + Math.cos(elapsed * 0.046) * 0.1 + Math.sin(elapsed * 0.02) * 0.04);
+    const scale = introActive ? Math.max(width, height) * 1.24 : Math.min(width, height) * (width < 760 ? 0.82 : 0.72);
+    const centerX = introActive ? width * 0.5 : width * (0.24 + Math.sin(elapsed * 0.055) * 0.12 + Math.sin(elapsed * 0.018) * 0.08);
+    const centerY = introActive ? height * 0.5 : height * (0.34 + Math.cos(elapsed * 0.046) * 0.1 + Math.sin(elapsed * 0.02) * 0.04);
     const rotation = Math.sin(elapsed * 0.034) * 0.34 - 0.18;
     const morphA = Math.sin(elapsed * 0.08) * 0.055;
     const morphB = Math.cos(elapsed * 0.06) * 0.045;
@@ -147,10 +237,10 @@ if (ambientCanvas) {
             const distance = Math.hypot(dx, dy);
 
             if (distance < 72) {
-              const alpha = (1 - distance / 72) * 0.16;
+              const alpha = (1 - distance / 72) * (introActive ? 0.34 : 0.16);
               context.beginPath();
-              context.strokeStyle = `rgba(17, 17, 17, ${alpha})`;
-              context.lineWidth = 0.55;
+              context.strokeStyle = introActive ? `rgba(248, 247, 243, ${alpha})` : `rgba(17, 17, 17, ${alpha})`;
+              context.lineWidth = introActive ? 0.72 : 0.55;
               context.moveTo(particle.screenX, particle.screenY);
               context.lineTo(next.screenX, next.screenY);
               context.stroke();
@@ -161,9 +251,11 @@ if (ambientCanvas) {
 
     particles.forEach((particle) => {
       const [red, green, blue] = particle.color;
+      const introAlpha = Math.min(0.9, particle.alpha * 1.9);
+      const introSize = particle.size * 1.28;
       context.beginPath();
-      context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${particle.alpha})`;
-      context.arc(particle.screenX, particle.screenY, particle.size, 0, Math.PI * 2);
+      context.fillStyle = introActive ? `rgba(248, 247, 243, ${introAlpha})` : `rgba(${red}, ${green}, ${blue}, ${particle.alpha})`;
+      context.arc(particle.screenX, particle.screenY, introActive ? introSize : particle.size, 0, Math.PI * 2);
       context.fill();
     });
 

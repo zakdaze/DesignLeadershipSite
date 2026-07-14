@@ -42,12 +42,19 @@ body {
   opacity: 0.78;
 }
 
+body[data-intro-active="true"] .ambient-canvas {
+  z-index: 95;
+  filter: contrast(1.5) brightness(1.4);
+  mix-blend-mode: screen;
+  opacity: 0.88;
+}
+
 .cursor-dot,
 .cursor-ring {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 60;
+  z-index: 120;
   display: none;
   mix-blend-mode: difference;
   pointer-events: none;
@@ -88,6 +95,99 @@ body[data-cursor-hover="true"] .cursor-ring {
   opacity: 0.58;
 }
 
+body[data-reveal="true"] .reveal-item {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 720ms ease, transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+body[data-reveal="true"] .reveal-item.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes introLabelIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes introLabelOut {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes introVeilUp {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+.intro-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--ink);
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  animation: introVeilUp 1080ms cubic-bezier(0.76, 0, 0.24, 1) forwards 2800ms;
+}
+
+.intro-label {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 110;
+  max-width: calc(100vw - 48px);
+  margin: 0;
+  color: var(--paper);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translate3d(-50%, -50%, 0);
+  animation: introLabelIn 520ms ease forwards 180ms, introLabelOut 360ms ease forwards 3150ms;
+}
+
+@keyframes heroAsideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes navDropIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-canvas {
     opacity: 0.42;
@@ -96,6 +196,28 @@ body[data-cursor-hover="true"] .cursor-ring {
   .cursor-dot,
   .cursor-ring {
     display: none !important;
+  }
+
+  body[data-reveal="true"] .reveal-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .intro-veil {
+    display: none;
+  }
+
+  .intro-label {
+    display: none;
+  }
+
+  .hero h1,
+  .hero-aside > *,
+  .site-header {
+    opacity: 1;
+    transform: none;
+    animation: none;
   }
 }
 
@@ -124,21 +246,35 @@ ul {
 }
 
 main {
+  padding-top: var(--header-height);
   background: var(--paper);
 }
 
 .site-header {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 20;
+  right: 0;
+  left: 0;
+  z-index: 50;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   min-height: var(--header-height);
-  padding: 23px clamp(24px, 3.333vw, 64px) 0;
+  padding: 0 clamp(24px, 3.333vw, 64px);
   border-bottom: 1px solid var(--line);
   background: rgba(248, 247, 243, 0.94);
   backdrop-filter: blur(18px);
+  opacity: 0;
+  transform: translate3d(0, -100%, 0);
+  animation: navDropIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 3980ms;
+  transition: min-height 240ms cubic-bezier(0.22, 1, 0.36, 1), background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.site-header[data-nav-scrolled="true"] {
+  min-height: 56px;
+  border-color: rgba(217, 214, 206, 0.74);
+  background: rgba(248, 247, 243, 0.86);
+  box-shadow: 0 18px 48px rgba(17, 17, 17, 0.035);
 }
 
 .brand,
@@ -182,6 +318,11 @@ main {
   gap: 32px;
   align-items: center;
   justify-content: flex-end;
+  transition: gap 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.site-header[data-nav-scrolled="true"] .primary-menu {
+  gap: 26px;
 }
 
 .primary-menu a,
@@ -190,6 +331,28 @@ main {
 .case-link,
 .button-outline {
   transition: color 180ms ease, border-color 180ms ease, background 180ms ease, background-size 220ms ease;
+}
+
+.primary-menu a {
+  position: relative;
+}
+
+.primary-menu a::after {
+  position: absolute;
+  right: 0;
+  bottom: -7px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  opacity: 0.68;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 220ms ease;
+}
+
+.primary-menu a:hover::after {
+  transform: scaleX(1);
 }
 
 .primary-menu a:hover,
@@ -267,8 +430,37 @@ h1 {
   line-height: 0.91;
 }
 
+.hero h1 {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  animation: heroAsideIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 4140ms;
+}
+
 .hero-aside {
   padding-top: 10px;
+}
+
+.hero-aside p,
+.hero-actions {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  animation: heroAsideIn 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-aside p:nth-of-type(1) {
+  animation-delay: 4380ms;
+}
+
+.hero-aside p:nth-of-type(2) {
+  animation-delay: 4500ms;
+}
+
+.hero-aside p:nth-of-type(3) {
+  animation-delay: 4620ms;
+}
+
+.hero-actions {
+  animation-delay: 4780ms;
 }
 
 .hero-aside p,
@@ -574,8 +766,11 @@ h2 {
   top: -32px;
   bottom: -32px;
   left: 0;
+  transform: translate3d(0, var(--case-line-shift, 0px), 0);
   width: 4px;
   content: "";
+  transition: opacity 220ms ease;
+  will-change: transform;
 }
 
 .case-card.purple::before {
@@ -658,6 +853,8 @@ h2 {
   z-index: 1;
   width: min(84.6%, 1353px);
   height: auto;
+  transform: translate3d(0, var(--work-image-shift, 0px), 0);
+  will-change: transform;
 }
 
 .slider-bars {
@@ -910,7 +1107,7 @@ h2 {
   }
 
   .site-header {
-    position: sticky;
+    position: fixed;
     display: grid;
     grid-template-columns: 1fr 44px;
     align-items: center;
@@ -918,6 +1115,10 @@ h2 {
     min-height: 67px;
     padding-top: 0;
     padding-bottom: 0;
+  }
+
+  .site-header[data-nav-scrolled="true"] {
+    min-height: 67px;
   }
 
   .brand {
@@ -977,11 +1178,21 @@ h2 {
     text-align: center;
   }
 
+  .site-header[data-nav-scrolled="true"] .primary-menu {
+    gap: 30px;
+  }
+
   .primary-menu a {
     display: block;
     padding: 8px 0;
     border-bottom: 0;
     text-align: center;
+  }
+
+  .primary-menu a::after {
+    right: 0;
+    bottom: 0;
+    left: 0;
   }
 
   .site-header[data-menu-open="true"] .primary-menu {
