@@ -2,7 +2,10 @@ const header = document.querySelector(".site-header");
 const menuButton = document.querySelector(".menu-toggle");
 const menuLinks = document.querySelectorAll(".primary-menu a");
 
+window.scrollTo(0, 0);
+
 window.setTimeout(() => {
+  window.scrollTo(0, 0);
   document.body.dataset.introActive = "false";
 }, 4300);
 
@@ -32,6 +35,22 @@ window.addEventListener("resize", () => {
 
 window.addEventListener("scroll", setHeaderScrolled, { passive: true });
 setHeaderScrolled();
+
+const contactSection = document.querySelector(".contact");
+
+if (contactSection && "IntersectionObserver" in window) {
+  const contactObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (document.body.dataset.introActive !== "true") {
+        document.body.dataset.dotfieldTheme = entry.isIntersecting ? "inverse" : "default";
+      }
+    });
+  }, {
+    threshold: 0.28,
+  });
+
+  contactObserver.observe(contactSection);
+}
 
 const revealItems = document.querySelectorAll([
   ".section-intro",
@@ -116,10 +135,12 @@ const ambientCanvas = document.querySelector(".ambient-canvas");
 if (ambientCanvas) {
   const context = ambientCanvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const coarsePointer = window.matchMedia("(pointer: coarse)");
   const pointer = { x: -1000, y: -1000, tx: -1000, ty: -1000, active: false };
   let width = 0;
   let height = 0;
   let particles = [];
+  let mobileClusters = [];
   let start = performance.now();
 
   const colors = [
@@ -130,7 +151,7 @@ if (ambientCanvas) {
   ];
 
   function makeParticles() {
-    const count = window.innerWidth < 760 ? 680 : 1650;
+    const count = window.innerWidth < 760 ? 680 : 2475;
     particles = Array.from({ length: count }, (_, index) => {
       const angle = Math.random() * Math.PI * 2;
       const radius = Math.sqrt(Math.random());
@@ -152,6 +173,32 @@ if (ambientCanvas) {
     });
   }
 
+  function makeMobileClusters() {
+    const clusterMap = [
+      { x: 0.18, y: 0.18, radius: 92, nodes: 9, phase: 0.2 },
+      { x: 0.77, y: 0.28, radius: 118, nodes: 12, phase: 1.8 },
+      { x: 0.33, y: 0.52, radius: 102, nodes: 10, phase: 3.1 },
+      { x: 0.83, y: 0.66, radius: 86, nodes: 8, phase: 4.2 },
+      { x: 0.24, y: 0.84, radius: 112, nodes: 11, phase: 5.4 },
+    ];
+
+    mobileClusters = clusterMap.map((cluster, clusterIndex) => ({
+      ...cluster,
+      drift: cluster.phase + clusterIndex * 0.6,
+      nodes: Array.from({ length: cluster.nodes }, (_, nodeIndex) => {
+        const angle = (nodeIndex / cluster.nodes) * Math.PI * 2 + cluster.phase;
+        const radius = cluster.radius * (0.24 + ((nodeIndex * 37) % 61) / 100);
+
+        return {
+          x: Math.cos(angle) * radius * (0.82 + ((nodeIndex * 13) % 17) / 100),
+          y: Math.sin(angle) * radius * (0.62 + ((nodeIndex * 19) % 23) / 100),
+          phase: cluster.phase + nodeIndex * 0.47,
+          size: 0.7 + ((nodeIndex * 11) % 9) / 10,
+        };
+      }),
+    }));
+  }
+
   function resizeCanvas() {
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     width = window.innerWidth;
@@ -162,25 +209,101 @@ if (ambientCanvas) {
     ambientCanvas.style.height = `${height}px`;
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     makeParticles();
+    makeMobileClusters();
+  }
+
+  function drawMobileLoop(elapsed, inverseActive) {
+    const lineColor = inverseActive ? "248, 247, 243" : "17, 17, 17";
+    const dotColor = inverseActive ? "248, 247, 243" : "17, 17, 17";
+    const globalAlpha = inverseActive ? 1.16 : 1;
+
+    mobileClusters.forEach((cluster) => {
+      const driftX = Math.sin(elapsed * 0.08 + cluster.drift) * Math.min(width, 720) * 0.035;
+      const driftY = Math.cos(elapsed * 0.065 + cluster.drift) * Math.min(height, 900) * 0.028;
+      const centerX = width * cluster.x + driftX;
+      const centerY = height * cluster.y + driftY;
+      const rotation = Math.sin(elapsed * 0.05 + cluster.phase) * 0.16;
+      const breathe = 1 + Math.sin(elapsed * 0.18 + cluster.phase) * 0.035;
+      const cos = Math.cos(rotation);
+      const sin = Math.sin(rotation);
+      const points = cluster.nodes.map((node) => {
+        const wobble = Math.sin(elapsed * 0.16 + node.phase) * 4.5;
+        const x = (node.x * breathe) + wobble;
+        const y = (node.y * breathe) + Math.cos(elapsed * 0.13 + node.phase) * 4;
+
+        return {
+          x: centerX + (x * cos - y * sin),
+          y: centerY + (x * sin + y * cos),
+          size: node.size,
+          phase: node.phase,
+        };
+      });
+
+      points.forEach((point, index) => {
+        for (let nextIndex = index + 1; nextIndex < points.length; nextIndex += 1) {
+          const next = points[nextIndex];
+          const distance = Math.hypot(point.x - next.x, point.y - next.y);
+          const maxDistance = cluster.radius * 0.74;
+
+          if (distance < maxDistance) {
+            const pulse = 0.74 + Math.sin(elapsed * 0.28 + point.phase + next.phase) * 0.18;
+            const alpha = (1 - distance / maxDistance) * pulse * (inverseActive ? 0.24 : 0.105) * globalAlpha;
+
+            context.beginPath();
+            context.strokeStyle = `rgba(${lineColor}, ${alpha})`;
+            context.lineWidth = inverseActive ? 0.58 : 0.46;
+            context.moveTo(point.x, point.y);
+            context.lineTo(next.x, next.y);
+            context.stroke();
+          }
+        }
+      });
+
+      points.forEach((point) => {
+        const alpha = (0.18 + Math.sin(elapsed * 0.22 + point.phase) * 0.045) * (inverseActive ? 1.42 : 1);
+
+        context.beginPath();
+        context.fillStyle = `rgba(${dotColor}, ${alpha})`;
+        context.arc(point.x, point.y, point.size, 0, Math.PI * 2);
+        context.fill();
+      });
+    });
   }
 
   function draw(now) {
     const elapsed = (now - start) / 1000;
     const introActive = document.body.dataset.introActive === "true";
+    const mobileAmbient = coarsePointer.matches && !introActive;
+    const introConstellation = introActive;
+    const siteConstellation = !introActive;
+    const constellationActive = introConstellation || siteConstellation;
+    const inverseActive = introActive || document.body.dataset.dotfieldTheme === "inverse";
     context.clearRect(0, 0, width, height);
 
     pointer.x += (pointer.tx - pointer.x) * 0.08;
     pointer.y += (pointer.ty - pointer.y) * 0.08;
 
-    const scale = introActive ? Math.max(width, height) * 1.24 : Math.min(width, height) * (width < 760 ? 0.82 : 0.72);
-    const centerX = introActive ? width * 0.5 : width * (0.24 + Math.sin(elapsed * 0.055) * 0.12 + Math.sin(elapsed * 0.018) * 0.08);
-    const centerY = introActive ? height * 0.5 : height * (0.34 + Math.cos(elapsed * 0.046) * 0.1 + Math.sin(elapsed * 0.02) * 0.04);
-    const rotation = Math.sin(elapsed * 0.034) * 0.34 - 0.18;
-    const morphA = Math.sin(elapsed * 0.08) * 0.055;
-    const morphB = Math.cos(elapsed * 0.06) * 0.045;
+    const normalScale = Math.min(width, height) * (width < 760 ? 0.82 : 0.72);
+    const constellationScale = Math.max(width, height) * (introActive ? 1.24 : 0.92);
+    const scale = constellationActive ? constellationScale : normalScale;
+    const centerX = constellationActive ? width * (introActive ? 0.5 : 0.46 + Math.sin(elapsed * 0.035) * 0.035) : width * (0.24 + Math.sin(elapsed * 0.055) * 0.12 + Math.sin(elapsed * 0.018) * 0.08);
+    const centerY = constellationActive ? height * (introActive ? 0.5 : 0.46 + Math.cos(elapsed * 0.032) * 0.03) : height * (0.34 + Math.cos(elapsed * 0.046) * 0.1 + Math.sin(elapsed * 0.02) * 0.04);
+    const rotation = introActive ? Math.sin(elapsed * 0.034) * 0.34 - 0.18 : Math.sin(elapsed * 0.024) * 0.24 - 0.12;
+    const morphA = Math.sin(elapsed * (introActive ? 0.08 : 0.055)) * (introActive ? 0.055 : 0.075);
+    const morphB = Math.cos(elapsed * (introActive ? 0.06 : 0.045)) * (introActive ? 0.045 : 0.062);
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
     const connectionCandidates = [];
+
+    if (mobileAmbient) {
+      drawMobileLoop(elapsed, inverseActive);
+
+      if (!reducedMotion.matches) {
+        requestAnimationFrame(draw);
+      }
+
+      return;
+    }
 
     particles.forEach((particle) => {
       const pulse = Math.sin(elapsed * 0.32 + particle.drift) * 0.026;
@@ -191,7 +314,7 @@ if (ambientCanvas) {
       let targetX = 0;
       let targetY = 0;
 
-      if (pointer.active && width > 760) {
+      if (pointer.active && width > 760 && !mobileAmbient) {
         const dx = baseX + particle.ox - pointer.x;
         const dy = baseY + particle.oy - pointer.y;
         const distance = Math.hypot(dx, dy);
@@ -236,11 +359,13 @@ if (ambientCanvas) {
             const dy = particle.screenY - next.screenY;
             const distance = Math.hypot(dx, dy);
 
-            if (distance < 72) {
-              const alpha = (1 - distance / 72) * (introActive ? 0.34 : 0.16);
+            const connectionDistance = 72;
+
+            if (distance < connectionDistance) {
+              const alpha = (1 - distance / connectionDistance) * (introConstellation ? 0.34 : inverseActive ? 0.24 : 0.16);
               context.beginPath();
-              context.strokeStyle = introActive ? `rgba(248, 247, 243, ${alpha})` : `rgba(17, 17, 17, ${alpha})`;
-              context.lineWidth = introActive ? 0.72 : 0.55;
+              context.strokeStyle = inverseActive ? `rgba(248, 247, 243, ${alpha})` : `rgba(17, 17, 17, ${alpha})`;
+              context.lineWidth = constellationActive ? 0.72 : 0.55;
               context.moveTo(particle.screenX, particle.screenY);
               context.lineTo(next.screenX, next.screenY);
               context.stroke();
@@ -252,10 +377,14 @@ if (ambientCanvas) {
     particles.forEach((particle) => {
       const [red, green, blue] = particle.color;
       const introAlpha = Math.min(0.9, particle.alpha * 1.9);
+      const inverseAlpha = Math.min(0.58, particle.alpha * 1.28);
       const introSize = particle.size * 1.28;
+      const siteConstellationAlphaD = Math.min(0.54, particle.alpha * 1.18);
+      const inverseConstellationAlphaD = Math.min(0.64, particle.alpha * 1.34);
+      const siteConstellationSize = particle.size * 1.08;
       context.beginPath();
-      context.fillStyle = introActive ? `rgba(248, 247, 243, ${introAlpha})` : `rgba(${red}, ${green}, ${blue}, ${particle.alpha})`;
-      context.arc(particle.screenX, particle.screenY, introActive ? introSize : particle.size, 0, Math.PI * 2);
+      context.fillStyle = inverseActive ? `rgba(248, 247, 243, ${introConstellation ? introAlpha : siteConstellation ? inverseConstellationAlphaD : inverseAlpha})` : `rgba(${red}, ${green}, ${blue}, ${siteConstellation ? siteConstellationAlphaD : particle.alpha})`;
+      context.arc(particle.screenX, particle.screenY, introConstellation ? introSize : siteConstellation ? siteConstellationSize : particle.size, 0, Math.PI * 2);
       context.fill();
     });
 

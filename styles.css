@@ -31,6 +31,11 @@ body {
   text-rendering: geometricPrecision;
 }
 
+body[data-intro-active="true"] {
+  height: 100vh;
+  overflow: hidden;
+}
+
 .ambient-canvas {
   position: fixed;
   z-index: 3;
@@ -47,6 +52,18 @@ body[data-intro-active="true"] .ambient-canvas {
   filter: contrast(1.5) brightness(1.4);
   mix-blend-mode: screen;
   opacity: 0.88;
+}
+
+body:not([data-intro-active="true"]) .ambient-canvas {
+  filter: contrast(1.08) brightness(1.02);
+  opacity: 0.72;
+}
+
+body[data-dotfield-theme="inverse"] .ambient-canvas {
+  z-index: 4;
+  filter: contrast(1.26) brightness(1.16);
+  mix-blend-mode: screen;
+  opacity: 0.54;
 }
 
 .cursor-dot,
