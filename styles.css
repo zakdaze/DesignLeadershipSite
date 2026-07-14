@@ -22,12 +22,30 @@ html {
 }
 
 body {
+  position: relative;
   margin: 0;
   overflow-x: hidden;
   background: var(--paper);
   color: var(--ink);
   font-family: Inter, Arial, sans-serif;
   text-rendering: geometricPrecision;
+}
+
+.ambient-canvas {
+  position: fixed;
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.78;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-canvas {
+    opacity: 0.42;
+  }
 }
 
 body,
@@ -528,6 +546,8 @@ h2 {
 }
 
 .work-frame {
+  position: relative;
+  z-index: 5;
   display: grid;
   place-items: center;
   width: 100%;
@@ -537,11 +557,15 @@ h2 {
 }
 
 .work-frame img {
+  position: relative;
+  z-index: 1;
   width: min(84.6%, 1353px);
   height: auto;
 }
 
 .slider-bars {
+  position: relative;
+  z-index: 5;
   display: grid;
   grid-template-columns: repeat(6, minmax(40px, 104px));
   gap: 8px;
@@ -624,8 +648,11 @@ h2 {
 }
 
 .contact {
-  width: min(100%, calc(var(--content) + (var(--gutter) * 2)));
-  margin-inline: auto;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-right: max(var(--gutter), calc((100vw - var(--content)) / 2 + var(--gutter)));
+  padding-left: max(var(--gutter), calc((100vw - var(--content)) / 2 + var(--gutter)));
   padding-top: clamp(88px, 7.135vw, 137px);
   padding-bottom: 70px;
   background: var(--ink);
@@ -662,9 +689,16 @@ h2 {
 }
 
 .site-footer {
+  position: relative;
+  z-index: 5;
   display: flex;
   justify-content: space-between;
   gap: 24px;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-right: max(var(--gutter), calc((100vw - var(--content)) / 2 + var(--gutter)));
+  padding-left: max(var(--gutter), calc((100vw - var(--content)) / 2 + var(--gutter)));
   padding-top: 30px;
   padding-bottom: 30px;
   border-top: 1px solid #2a2a2a;
