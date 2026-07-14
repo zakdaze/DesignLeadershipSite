@@ -186,3 +186,64 @@ if (ambientCanvas) {
   resizeCanvas();
   requestAnimationFrame(draw);
 }
+
+const cursorCanRun = window.matchMedia("(pointer: fine)").matches &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (cursorCanRun) {
+  const cursorDot = document.createElement("span");
+  const cursorRing = document.createElement("span");
+  const cursor = {
+    dotX: window.innerWidth / 2,
+    dotY: window.innerHeight / 2,
+    ringX: window.innerWidth / 2,
+    ringY: window.innerHeight / 2,
+    visible: false,
+  };
+
+  cursorDot.className = "cursor-dot";
+  cursorRing.className = "cursor-ring";
+  cursorDot.setAttribute("aria-hidden", "true");
+  cursorRing.setAttribute("aria-hidden", "true");
+  document.body.append(cursorRing, cursorDot);
+  document.body.dataset.customCursor = "true";
+
+  function moveCursor() {
+    cursor.ringX += (cursor.dotX - cursor.ringX) * 0.16;
+    cursor.ringY += (cursor.dotY - cursor.ringY) * 0.16;
+    cursorDot.style.transform = `translate3d(${cursor.dotX}px, ${cursor.dotY}px, 0) translate3d(-50%, -50%, 0)`;
+    cursorRing.style.transform = `translate3d(${cursor.ringX}px, ${cursor.ringY}px, 0) translate3d(-50%, -50%, 0)`;
+    requestAnimationFrame(moveCursor);
+  }
+
+  window.addEventListener("pointermove", (event) => {
+    cursor.dotX = event.clientX;
+    cursor.dotY = event.clientY;
+
+    if (!cursor.visible) {
+      cursor.ringX = cursor.dotX;
+      cursor.ringY = cursor.dotY;
+      cursor.visible = true;
+    }
+  });
+
+  window.addEventListener("pointerleave", () => {
+    document.body.dataset.customCursor = "false";
+    cursor.visible = false;
+  });
+
+  window.addEventListener("pointerenter", () => {
+    document.body.dataset.customCursor = "true";
+  });
+
+  document.querySelectorAll("a, button").forEach((item) => {
+    item.addEventListener("pointerenter", () => {
+      document.body.dataset.cursorHover = "true";
+    });
+    item.addEventListener("pointerleave", () => {
+      document.body.dataset.cursorHover = "false";
+    });
+  });
+
+  requestAnimationFrame(moveCursor);
+}

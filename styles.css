@@ -42,9 +42,60 @@ body {
   opacity: 0.78;
 }
 
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  display: none;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #ffffff;
+  border-radius: 999px;
+  opacity: 0.42;
+  transition: width 180ms ease, height 180ms ease, border-color 180ms ease, opacity 180ms ease;
+}
+
+body[data-custom-cursor="true"],
+body[data-custom-cursor="true"] a,
+body[data-custom-cursor="true"] button {
+  cursor: none;
+}
+
+body[data-custom-cursor="true"] .cursor-dot,
+body[data-custom-cursor="true"] .cursor-ring {
+  display: block;
+}
+
+body[data-cursor-hover="true"] .cursor-ring {
+  width: 54px;
+  height: 54px;
+  opacity: 0.58;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ambient-canvas {
     opacity: 0.42;
+  }
+
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
   }
 }
 
@@ -138,14 +189,17 @@ main {
 .text-link,
 .case-link,
 .button-outline {
-  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease, background-size 220ms ease;
 }
 
 .primary-menu a:hover,
-.brand:hover,
+.brand:hover {
+  color: var(--muted);
+}
+
 .text-link:hover,
 .case-link:hover {
-  color: var(--green);
+  color: var(--ink);
 }
 
 .menu-toggle {
@@ -242,6 +296,7 @@ h1 {
 }
 
 .button-outline {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -249,21 +304,63 @@ h1 {
   min-height: 54px;
   padding: 13px 24px 11px;
   border: 1px solid var(--ink);
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
   color: var(--muted);
   text-align: center;
 }
 
 .button-outline:hover {
-  background: var(--ink);
+  background-size: 100% 100%;
   color: var(--paper);
 }
 
 .text-link {
+  position: relative;
   display: inline-block;
-  border-bottom: 1px solid currentColor;
   padding-inline: 12px;
   color: var(--muted);
   line-height: 2.15;
+}
+
+.text-link::before,
+.text-link::after,
+.case-link::before,
+.case-link::after {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  pointer-events: none;
+}
+
+.text-link::before,
+.case-link::before {
+  opacity: 0.42;
+  transition: opacity 120ms ease;
+}
+
+.text-link::after,
+.case-link::after {
+  opacity: 1;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 220ms ease;
+}
+
+.text-link:hover::before,
+.case-link:hover::before {
+  opacity: 0;
+}
+
+.text-link:hover::after,
+.case-link:hover::after {
+  transform: scaleX(1);
 }
 
 .section {
@@ -528,9 +625,9 @@ h2 {
 }
 
 .case-link {
+  position: relative;
   align-self: flex-start;
   margin-top: auto;
-  border-bottom: 1px solid currentColor;
   padding-inline: 12px;
   color: var(--muted);
   font-family: "IBM Plex Mono", monospace;
@@ -661,6 +758,10 @@ h2 {
 
 .contact .eyebrow,
 .contact .text-link {
+  color: var(--paper);
+}
+
+.contact .text-link:hover {
   color: var(--paper);
 }
 
