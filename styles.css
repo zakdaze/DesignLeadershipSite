@@ -860,7 +860,8 @@ h2 {
   display: grid;
   place-items: center;
   width: 100%;
-  min-height: clamp(320px, 37.708vw, 724px);
+  aspect-ratio: 5 / 3;
+  min-height: 0;
   overflow: hidden;
   background: #ffffff;
 }
@@ -874,13 +875,25 @@ h2 {
   will-change: transform;
 }
 
+.work-label {
+  position: relative;
+  z-index: 5;
+  margin-top: 12px;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
 .slider-bars {
   position: relative;
   z-index: 5;
   display: grid;
   grid-template-columns: repeat(6, minmax(40px, 104px));
   gap: 8px;
-  margin-top: 20px;
+  margin-top: 24px;
 }
 
 .slider-bars span {
