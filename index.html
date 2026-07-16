@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260714-intro-scroll-lock-v1">
+    <link rel="stylesheet" href="styles.css?v=20260716-carousel-indicator-v1">
   </head>
   <body data-intro-active="true">
     <div class="intro-veil" aria-hidden="true"></div>
@@ -217,18 +217,11 @@
           <p class="eyebrow">Additional Work</p>
           <h2 id="work-title">A small sample of things I’ve made along the way.</h2>
         </div>
-        <div class="work-frame">
-          <img src="assets/additional-work.png" alt="Selected product and brand work shown on multiple devices">
-        </div>
-        <p class="work-label">Washington Wizards</p>
-        <div class="slider-bars" aria-hidden="true">
-          <span></span>
-          <span class="active"></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <button class="work-frame" type="button" aria-label="Show next additional work slide">
+          <img src="assets/additional-work.png" alt="Washington Wizards homepage design">
+        </button>
+        <p class="work-label" aria-live="polite">01/15 – Additional Work 01</p>
+        <div class="slider-bars" aria-label="Additional work carousel slides"></div>
       </section>
 
       <section class="brand-section section-pad" aria-labelledby="brands-title">
@@ -261,6 +254,6 @@
       <p>Copyright 2026 Zak Elyazgi. All Rights Reserved.</p>
     </footer>
 
-    <script src="script.js?v=20260714-intro-scroll-lock-v1"></script>
+    <script src="script.js?v=20260716-carousel-indicator-v1"></script>
   </body>
 </html>

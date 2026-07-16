@@ -52,6 +52,149 @@ if (contactSection && "IntersectionObserver" in window) {
   contactObserver.observe(contactSection);
 }
 
+const workFrame = document.querySelector(".work-frame");
+const workImage = document.querySelector(".work-frame img");
+const workLabel = document.querySelector(".work-label");
+const workBars = document.querySelector(".slider-bars");
+const workPlaceholderImage = "assets/additional-work.png";
+const additionalWorkSlides = Array.from({ length: 15 }, (_, index) => ({
+  image: workPlaceholderImage,
+  alt: index === 1 ? "Washington Wizards homepage design" : `Additional work carousel slide ${index + 1}`,
+  label: index === 1 ? "Washington Wizards" : `Additional Work ${String(index + 1).padStart(2, "0")}`,
+}));
+let activeWorkSlide = 0;
+let workSlideTimer;
+const preloadedWorkImages = new Set();
+
+function formatWorkLabel(index) {
+  const slide = additionalWorkSlides[index];
+  const current = String(index + 1).padStart(2, "0");
+  const total = String(additionalWorkSlides.length).padStart(2, "0");
+  return `${current}/${total} – ${slide.label}`;
+}
+
+function preloadWorkSlide(index) {
+  const slide = additionalWorkSlides[index];
+
+  if (!slide || preloadedWorkImages.has(slide.image)) {
+    return;
+  }
+
+  const image = new Image();
+  image.src = slide.image;
+  preloadedWorkImages.add(slide.image);
+}
+
+function renderWorkBars() {
+  if (!workBars) {
+    return;
+  }
+
+  workBars.innerHTML = "";
+  const barGap = 6;
+  const collapsedStep = 16 + barGap;
+  const activeOffset = 64 - 16;
+  const trackWidth = (additionalWorkSlides.length * 16) + ((additionalWorkSlides.length - 1) * barGap) + activeOffset;
+  workBars.style.setProperty("--slider-track-width", `${trackWidth}px`);
+
+  const indicator = document.createElement("span");
+  indicator.className = "slider-active-indicator";
+  indicator.setAttribute("aria-hidden", "true");
+  workBars.appendChild(indicator);
+
+  additionalWorkSlides.forEach((slide, index) => {
+    const button = document.createElement("button");
+    button.className = "slider-bar";
+    button.type = "button";
+    button.setAttribute("aria-label", `Show slide ${index + 1}: ${slide.label}`);
+
+    if (index === activeWorkSlide) {
+      button.classList.add("active");
+      button.setAttribute("aria-current", "true");
+    }
+
+    button.addEventListener("click", () => setWorkSlide(index));
+    workBars.appendChild(button);
+  });
+
+  updateWorkBars();
+}
+
+function updateWorkSlideState(syncBars = true) {
+  const slide = additionalWorkSlides[activeWorkSlide];
+
+  if (!slide || !workImage || !workLabel || !workBars) {
+    return;
+  }
+
+  workImage.src = slide.image;
+  workImage.alt = slide.alt;
+  workLabel.textContent = formatWorkLabel(activeWorkSlide);
+
+  if (syncBars) {
+    updateWorkBars();
+  }
+
+  preloadWorkSlide((activeWorkSlide + 1) % additionalWorkSlides.length);
+  preloadWorkSlide((activeWorkSlide - 1 + additionalWorkSlides.length) % additionalWorkSlides.length);
+}
+
+function updateWorkBars() {
+  if (!workBars) {
+    return;
+  }
+
+  const barGap = 6;
+  const collapsedStep = 16 + barGap;
+  const activeOffset = 64 - 16;
+  workBars.style.setProperty("--active-bar-x", `${activeWorkSlide * collapsedStep}px`);
+
+  workBars.querySelectorAll(".slider-bar").forEach((button, index) => {
+    const isActive = index === activeWorkSlide;
+    const xPosition = (index * collapsedStep) + (index > activeWorkSlide ? activeOffset : 0);
+    button.style.setProperty("--bar-x", `${xPosition}px`);
+    button.classList.toggle("active", isActive);
+
+    if (isActive) {
+      button.setAttribute("aria-current", "true");
+    } else {
+      button.removeAttribute("aria-current");
+    }
+  });
+}
+
+function setWorkSlide(index) {
+  if (!workFrame || index === activeWorkSlide || !additionalWorkSlides[index]) {
+    return;
+  }
+
+  window.clearTimeout(workSlideTimer);
+  activeWorkSlide = index;
+  updateWorkBars();
+
+  workFrame.dataset.transitioning = "true";
+
+  workSlideTimer = window.setTimeout(() => {
+    updateWorkSlideState(false);
+    workFrame.dataset.transitioning = "false";
+  }, 180);
+}
+
+if (workFrame && workImage && workLabel && workBars && additionalWorkSlides.length > 0) {
+  renderWorkBars();
+  updateWorkSlideState();
+
+  workFrame.addEventListener("click", () => {
+    setWorkSlide((activeWorkSlide + 1) % additionalWorkSlides.length);
+  });
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(() => preloadWorkSlide((activeWorkSlide + 1) % additionalWorkSlides.length));
+  } else {
+    window.setTimeout(() => preloadWorkSlide((activeWorkSlide + 1) % additionalWorkSlides.length), 600);
+  }
+}
+
 const revealItems = document.querySelectorAll([
   ".section-intro",
   ".impact-card",

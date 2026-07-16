@@ -855,6 +855,7 @@ h2 {
 }
 
 .work-frame {
+  appearance: none;
   position: relative;
   z-index: 5;
   display: grid;
@@ -862,8 +863,11 @@ h2 {
   width: 100%;
   aspect-ratio: 5 / 3;
   min-height: 0;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   background: #ffffff;
+  cursor: pointer;
 }
 
 .work-frame img {
@@ -871,8 +875,20 @@ h2 {
   z-index: 1;
   width: min(84.6%, 1353px);
   height: auto;
+  opacity: 1;
   transform: translate3d(0, var(--work-image-shift, 0px), 0);
+  transition: opacity 320ms ease;
   will-change: transform;
+}
+
+.work-frame[data-transitioning="true"] img {
+  opacity: 0;
+}
+
+.work-frame:focus-visible,
+.slider-bar:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 6px;
 }
 
 .work-label {
@@ -888,21 +904,79 @@ h2 {
 }
 
 .slider-bars {
+  --slider-track-width: auto;
+  --active-bar-x: 0px;
   position: relative;
   z-index: 5;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(40px, 104px));
-  gap: 8px;
+  display: block;
+  width: var(--slider-track-width);
+  height: 17px;
+  max-width: 100%;
   margin-top: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.slider-bars span {
-  height: 4px;
-  background: #d9d9d9;
+.slider-bars::-webkit-scrollbar {
+  display: none;
 }
 
-.slider-bars .active {
+.slider-active-indicator {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  z-index: 1;
+  display: block;
+  width: 64px;
+  height: 1px;
+  border-radius: 999px;
   background: var(--orange);
+  pointer-events: none;
+  transform: translate3d(var(--active-bar-x), 0, 0);
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slider-bar {
+  appearance: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: block;
+  width: 16px;
+  height: 17px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.82;
+  overflow: hidden;
+  transform: translate3d(var(--bar-x, 0), 0, 0);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), width 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 240ms ease;
+}
+
+.slider-bar::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 1px;
+  border-radius: 999px;
+  background: var(--muted);
+  opacity: 0.42;
+}
+
+.slider-bar.active {
+  width: 64px;
+  background: transparent;
+  opacity: 1;
+}
+
+.slider-bar.active::before {
+  background: transparent;
 }
 
 .brand-section {
