@@ -484,7 +484,7 @@ h1 {
 .section-copy,
 .closing-line,
 .about-copy p,
-.contact > p {
+.contact > p:not(.eyebrow) {
   color: var(--ink);
   font-size: clamp(18px, 1.042vw, 20px);
   font-weight: 500;
