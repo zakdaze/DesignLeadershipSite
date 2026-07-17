@@ -125,6 +125,57 @@ body[data-reveal="true"] .reveal-item.is-visible {
   transform: translate3d(0, 0, 0);
 }
 
+body[data-unfurl="all"][data-reveal="true"] .reveal-item {
+  clip-path: inset(0 100% -0.22em -0.08em);
+  opacity: 1;
+  transform: none;
+  transition: clip-path 920ms cubic-bezier(0.76, 0, 0.24, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: clip-path;
+}
+
+body[data-unfurl="all"][data-reveal="true"] .reveal-item.is-visible {
+  clip-path: inset(0 -0.08em -0.22em -0.08em);
+  opacity: 1;
+  transform: none;
+}
+
+body[data-unfurl="down"][data-reveal="true"] .reveal-item {
+  clip-path: inset(0 -0.08em 100% -0.08em);
+  opacity: 1;
+  transform: none;
+  transition: clip-path 920ms cubic-bezier(0.76, 0, 0.24, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: clip-path;
+}
+
+body[data-unfurl="down"][data-reveal="true"] .reveal-item.is-visible {
+  clip-path: inset(0 -0.08em -0.22em -0.08em);
+  opacity: 1;
+  transform: none;
+}
+
+body[data-unfurl="down"] .hero h1,
+body[data-unfurl="down"] .hero-aside p,
+body[data-unfurl="down"] .hero-actions,
+body[data-unfurl="all"] .hero h1,
+body[data-unfurl="all"] .hero-aside p,
+body[data-unfurl="all"] .hero-actions {
+  animation: none;
+}
+
+body[data-unfurl="down"] .hero .eyebrow,
+body[data-unfurl="down"] .hero h1,
+body[data-unfurl="down"] .hero-aside p,
+body[data-unfurl="down"] .hero-actions,
+body[data-unfurl="all"] .hero .eyebrow,
+body[data-unfurl="all"] .hero h1,
+body[data-unfurl="all"] .hero-aside p,
+body[data-unfurl="all"] .hero-actions {
+  opacity: 1;
+  transform: none;
+}
+
 @keyframes introLabelIn {
   0% {
     opacity: 0;
