@@ -10,6 +10,16 @@
   --content: 1600px;
   --label-col: clamp(160px, 14.166vw, 272px);
   --header-height: 67px;
+  --space-section: clamp(88px, 6.667vw, 128px);
+  --space-inner: clamp(48px, 3.333vw, 64px);
+  --span-8: calc(var(--content) * 8 / 12);
+  --span-10: calc(var(--content) * 10 / 12);
+  --span-12: var(--content);
+  --type-body: clamp(18px, 1.042vw, 20px);
+  --type-inner: 16px;
+  --leading-body: 1.5;
+  --leading-inner: 1.3;
+  --case-accent: var(--purple);
 }
 
 * {
@@ -232,6 +242,11 @@ body[data-unfurl="all"] .hero-actions {
   animation: introLabelIn 520ms ease forwards 180ms, introLabelOut 360ms ease forwards 3150ms;
 }
 
+body[data-intro-seen="true"] .intro-veil,
+body[data-intro-seen="true"] .intro-label {
+  display: none;
+}
+
 @keyframes heroAsideIn {
   from {
     opacity: 0;
@@ -336,6 +351,12 @@ main {
   transform: translate3d(0, -100%, 0);
   animation: navDropIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 3980ms;
   transition: min-height 240ms cubic-bezier(0.22, 1, 0.36, 1), background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+body[data-intro-seen="true"] .site-header {
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
 
 .site-header[data-nav-scrolled="true"] {
@@ -443,6 +464,42 @@ main {
   padding-inline: var(--gutter);
 }
 
+.content-span-8,
+.content-span-8-inset-1,
+.content-span-10,
+.content-span-10-inset-1,
+.content-span-12 {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.content-span-8 {
+  width: min(100%, var(--span-8));
+}
+
+.content-span-8-inset-1 {
+  width: calc(100% * 8 / 12);
+  margin-left: calc(100% / 12);
+}
+
+.content-span-10 {
+  width: min(100%, var(--span-10));
+}
+
+.content-span-10-inset-1 {
+  width: calc(100% * 10 / 12);
+  margin-left: calc(100% / 12);
+}
+
+.content-span-12 {
+  width: min(100%, var(--span-12));
+}
+
+.stack-section {
+  padding-top: var(--space-section);
+  padding-bottom: 0;
+}
+
 .section,
 .hero,
 .brand-section {
@@ -535,11 +592,15 @@ h1 {
 .section-copy,
 .closing-line,
 .about-copy p,
-.contact > p:not(.eyebrow) {
+.contact > p:not(.eyebrow),
+.case-hero-copy p,
+.case-proof-copy,
+.case-callout p:not(.eyebrow),
+.case-outcome-copy p {
   color: var(--ink);
-  font-size: clamp(18px, 1.042vw, 20px);
+  font-size: var(--type-body);
   font-weight: 500;
-  line-height: 1.5;
+  line-height: var(--leading-body);
 }
 
 .hero-aside p + p,
@@ -585,6 +646,14 @@ h1 {
   line-height: 2.15;
 }
 
+.text-link-flush {
+  padding-inline: 0;
+}
+
+.case-link.text-link-flush {
+  padding-inline: 0;
+}
+
 .text-link::before,
 .text-link::after,
 .case-link::before,
@@ -611,6 +680,12 @@ h1 {
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 220ms ease;
+}
+
+.text-link-flush::before,
+.text-link-flush::after {
+  right: 0;
+  left: 0;
 }
 
 .text-link:hover::before,
@@ -714,9 +789,9 @@ h2 {
 .experience-list p,
 .case-card p,
 .case-card li {
-  font-size: 16px;
+  font-size: var(--type-inner);
   font-weight: 500;
-  line-height: 1.3;
+  line-height: var(--leading-inner);
 }
 
 .closing-line {
@@ -818,27 +893,26 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(40px, 2.604vw, 50px);
-  margin-top: 96px;
+  margin-top: 72px;
 }
 
 .case-card {
+  --case-card-line-overhang: 24px;
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 662px;
-  padding-left: 49px;
+  min-height: 710px;
+  padding: var(--case-card-line-overhang, 32px) 0 var(--case-card-line-overhang, 32px) 49px;
 }
 
 .case-card::before {
   position: absolute;
-  top: -32px;
-  bottom: -32px;
+  top: 0;
+  bottom: 0;
   left: 0;
-  transform: translate3d(0, var(--case-line-shift, 0px), 0);
   width: 4px;
   content: "";
   transition: opacity 220ms ease;
-  will-change: transform;
 }
 
 .case-card.purple::before {
@@ -1164,6 +1238,309 @@ h2 {
   text-transform: none;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.case-study-page .section-copy p + p {
+  margin-top: 30px;
+}
+
+.case-study-verisign {
+  --case-accent: var(--orange);
+}
+
+.case-study-grab {
+  --case-accent: var(--green);
+}
+
+.case-subnav {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.case-subnav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  padding-inline: 18px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.case-subnav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 12px 0 10px;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-transform: uppercase;
+  transition: color 180ms ease;
+  white-space: nowrap;
+}
+
+.case-subnav a:last-child {
+  border-right: 0;
+}
+
+.case-subnav a:hover {
+  color: var(--ink);
+}
+
+.case-hero {
+  position: relative;
+  padding-top: clamp(64px, 4.583vw, 88px);
+  padding-bottom: var(--space-section);
+}
+
+.case-hero::after,
+.case-led-section::after {
+  position: absolute;
+  display: block;
+  right: var(--gutter);
+  bottom: 0;
+  left: var(--gutter);
+  height: 1px;
+  background: var(--line);
+  content: "";
+}
+
+.case-hero-rule {
+  position: absolute;
+  top: -24px;
+  bottom: -24px;
+  left: 0;
+  width: 8px;
+  background: var(--case-accent);
+}
+
+body[data-unfurl="down"][data-reveal="true"] .case-hero-rule.reveal-item,
+body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item {
+  clip-path: none;
+  opacity: 1;
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform 920ms cubic-bezier(0.76, 0, 0.24, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+body[data-unfurl="down"][data-reveal="true"] .case-hero-rule.reveal-item.is-visible,
+body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visible {
+  transform: scaleY(1);
+}
+
+.case-hero-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(108px, 7.083vw, 136px) minmax(0, 1fr);
+  align-items: start;
+}
+
+.case-hero-label {
+  grid-column: 2;
+  padding-left: 0;
+  margin-bottom: 30px;
+}
+
+.case-hero-main {
+  grid-column: 2;
+  max-width: 1328px;
+}
+
+.case-hero-logo {
+  margin-bottom: var(--space-inner);
+}
+
+.case-hero h1 {
+  max-width: 1180px;
+}
+
+.case-hero-detail {
+  display: grid;
+  grid-template-columns: minmax(240px, 392px) minmax(0, 648px);
+  gap: clamp(48px, 5vw, 96px);
+  align-items: start;
+  margin-top: var(--space-inner);
+}
+
+.case-meta {
+  display: grid;
+  gap: 28px;
+}
+
+.case-meta p:not(.eyebrow-small) {
+  font-size: var(--type-inner);
+  font-weight: 500;
+  line-height: var(--leading-inner);
+}
+
+.case-hero-copy p + p,
+.case-outcome-copy p + p {
+  margin-top: 30px;
+}
+
+.case-media-section {
+  position: relative;
+  padding-top: var(--space-section);
+  padding-bottom: 0;
+}
+
+.case-media {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  margin: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.case-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.case-objectives {
+  position: relative;
+}
+
+.case-objectives .process-grid {
+  margin-top: 0;
+}
+
+.case-study-page .proof-section {
+  position: relative;
+  padding-bottom: var(--space-section);
+}
+
+.case-study-page .case-led-section {
+  position: relative;
+  padding-bottom: var(--space-section);
+}
+
+.case-proof-intro h2 {
+  margin-top: var(--space-inner);
+}
+
+.case-proof-intro .section-copy {
+  max-width: none;
+}
+
+.case-comparison {
+  position: relative;
+  margin-top: var(--space-inner);
+}
+
+.case-comparison::after,
+.case-comparison-head::after {
+  position: absolute;
+  left: calc(-100% / 10);
+  width: calc(100% * 12 / 10);
+  height: 1px;
+  background: var(--line);
+  content: "";
+}
+
+.case-comparison::after {
+  bottom: 0;
+}
+
+.case-comparison-row {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  column-gap: clamp(32px, 2.5vw, 48px);
+  padding: clamp(24px, 1.667vw, 32px) 0;
+}
+
+.case-comparison-row > :nth-child(1) {
+  grid-column: 1 / span 2;
+}
+
+.case-comparison-row > :nth-child(2) {
+  grid-column: 3 / span 4;
+}
+
+.case-comparison-row > :nth-child(3) {
+  grid-column: 7 / span 4;
+}
+
+.case-comparison-head {
+  position: relative;
+  align-items: end;
+  padding-top: 0;
+}
+
+.case-comparison-head::after {
+  bottom: 0;
+}
+
+.case-comparison h3 {
+  font-size: clamp(28px, 1.875vw, 36px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+
+.case-comparison-row p:not(.eyebrow-small) {
+  font-size: var(--type-inner);
+  font-weight: 500;
+  line-height: var(--leading-inner);
+}
+
+.case-proof-copy {
+  max-width: none;
+  margin-top: var(--space-inner);
+}
+
+.case-proof-copy p + p {
+  margin-top: 30px;
+}
+
+.case-callout {
+  width: min(100%, var(--span-8));
+  margin: var(--space-section) auto 0;
+  padding: clamp(48px, 4.167vw, 80px);
+  border: 1px solid var(--line);
+}
+
+.case-callout h2 {
+  margin-top: 44px;
+}
+
+.case-callout p:last-child {
+  max-width: 760px;
+  margin-top: 44px;
+}
+
+.case-outcome {
+  padding-bottom: clamp(88px, 7.135vw, 137px);
+}
+
+.case-outcome-copy {
+  max-width: 1056px;
+  margin-top: 58px;
+}
+
+.case-outcome-copy p {
+  color: var(--paper);
+}
+
 @media (max-width: 1879px) {
   .impact-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1227,17 +1604,13 @@ h2 {
   .case-grid {
     grid-template-columns: 1fr;
     gap: 96px;
-    margin-top: 92px;
+    margin-top: 68px;
   }
 
   .case-card {
     min-height: auto;
-    padding-bottom: 28px;
-  }
-
-  .case-card::before {
-    top: -24px;
-    bottom: -24px;
+    padding-top: var(--case-card-line-overhang, 24px);
+    padding-bottom: var(--case-card-line-overhang, 24px);
   }
 
   .case-card h3,
@@ -1252,6 +1625,15 @@ h2 {
 
   .case-link {
     margin-top: 48px;
+  }
+
+  .case-hero-detail {
+    grid-template-columns: 1fr;
+    max-width: 880px;
+  }
+
+  .case-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1379,6 +1761,120 @@ h2 {
     gap: 48px;
     justify-content: center;
   }
+
+  .case-subnav-inner {
+    width: 100%;
+    gap: 0;
+    padding-inline: 0;
+  }
+
+  .case-subnav a {
+    justify-content: center;
+    width: 33.333%;
+    padding-right: 12px;
+    padding-left: 12px;
+    text-align: center;
+  }
+
+  .case-subnav a:first-child {
+    font-size: 0;
+  }
+
+  .case-subnav a:first-child::before {
+    content: "Prev";
+    font-size: 14px;
+  }
+
+  .case-subnav a:nth-child(2) {
+    font-size: 0;
+  }
+
+  .case-subnav a:nth-child(2)::before {
+    content: "Home";
+    font-size: 14px;
+  }
+
+  .case-subnav a:last-child {
+    font-size: 0;
+  }
+
+  .case-subnav a:last-child::before {
+    content: "Next";
+    font-size: 14px;
+  }
+
+  .case-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .case-hero-label,
+  .case-hero-main {
+    grid-column: 1;
+    padding-left: 52px;
+  }
+
+  .case-comparison {
+    display: grid;
+    gap: 32px;
+    border-top: 0;
+  }
+
+  .case-comparison::after,
+  .case-comparison-head::after {
+    left: 0;
+    width: 100%;
+  }
+
+  .case-comparison-row,
+  .case-comparison-head {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 0 0 32px;
+  }
+
+  .case-comparison-row > :nth-child(1),
+  .case-comparison-row > :nth-child(2),
+  .case-comparison-row > :nth-child(3) {
+    grid-column: auto;
+  }
+
+  .case-comparison-head {
+    display: none;
+  }
+
+  .case-comparison-row {
+    border-bottom: 0;
+  }
+
+  .case-comparison-row p:not(.eyebrow-small)::before {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .case-comparison-row p:nth-child(2)::before {
+    content: "Online Account Center";
+  }
+
+  .case-comparison-row p:nth-child(3)::before {
+    content: "Channel Guide";
+  }
+
+  .case-proof-copy {
+    margin-left: 0;
+  }
+
+  .content-span-8-inset-1,
+  .content-span-10-inset-1 {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 @media (max-width: 800px) {
@@ -1417,6 +1913,11 @@ h2 {
 
   .case-link {
     margin-top: 44px;
+  }
+
+  .case-media-section {
+    padding-top: 72px;
+    padding-bottom: 72px;
   }
 }
 
@@ -1513,11 +2014,6 @@ h2 {
     padding-left: 28px;
   }
 
-  .case-card::before {
-    top: -24px;
-    bottom: -24px;
-  }
-
   .case-label {
     white-space: normal;
   }
@@ -1530,5 +2026,44 @@ h2 {
     flex-direction: column;
     gap: 10px;
     text-align: center;
+  }
+
+  .case-subnav {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .case-subnav a {
+    min-height: 42px;
+  }
+
+  .case-hero {
+    padding-top: 44px;
+  }
+
+  .case-hero-label,
+  .case-hero-main {
+    padding-left: 28px;
+  }
+
+  .case-hero-logo {
+    margin-bottom: 48px;
+  }
+
+  .case-hero-detail {
+    margin-top: 64px;
+  }
+
+  .case-meta {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .case-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .case-callout {
+    padding: 36px 28px;
   }
 }
