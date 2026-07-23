@@ -3,18 +3,38 @@ const menuButton = document.querySelector(".menu-toggle");
 const menuLinks = document.querySelectorAll(".primary-menu a");
 const pageParams = new URLSearchParams(window.location.search);
 const unfurlModeParam = pageParams.get("unfurl");
-const unfurlMode = unfurlModeParam === "all" || unfurlModeParam === "down";
+const unfurlMode = unfurlModeParam === "all" || unfurlModeParam === "down" ? unfurlModeParam : "down";
+const introStorageKey = "zak-site-intro-seen";
+let introHasPlayed = false;
 
-if (unfurlMode) {
-  document.body.dataset.unfurl = unfurlModeParam;
+try {
+  introHasPlayed = window.sessionStorage.getItem(introStorageKey) === "true";
+} catch (error) {
+  introHasPlayed = false;
 }
 
-window.scrollTo(0, 0);
+if (unfurlMode) {
+  document.body.dataset.unfurl = unfurlMode;
+}
 
-window.setTimeout(() => {
-  window.scrollTo(0, 0);
+if (introHasPlayed) {
+  document.body.dataset.introSeen = "true";
   document.body.dataset.introActive = "false";
-}, 4300);
+} else {
+  window.scrollTo(0, 0);
+
+  window.setTimeout(() => {
+    window.scrollTo(0, 0);
+    document.body.dataset.introActive = "false";
+    document.body.dataset.introSeen = "true";
+
+    try {
+      window.sessionStorage.setItem(introStorageKey, "true");
+    } catch (error) {
+      // Ignore private-mode storage failures; the intro still completes normally.
+    }
+  }, 4300);
+}
 
 function setHeaderScrolled() {
   header.dataset.navScrolled = String(window.scrollY > 12);
@@ -207,10 +227,18 @@ const revealSelectors = unfurlMode ? [
   ".hero h1",
   ".hero-aside p",
   ".hero-actions",
+  ".case-subnav",
+  ".case-hero-rule",
+  ".case-hero .eyebrow",
+  ".case-hero-logo",
+  ".case-hero h1",
+  ".case-meta > div",
+  ".case-hero-copy p",
   ".section-intro .eyebrow",
   ".section-intro h2",
   ".section-copy",
   ".section-link",
+  ".case-media",
   ".impact-grid article",
   ".closing-line",
   ".profile-image",
@@ -218,21 +246,34 @@ const revealSelectors = unfurlMode ? [
   ".process-grid article",
   ".experience-list article",
   ".case-card",
+  ".case-comparison-row",
+  ".case-proof-copy",
+  ".case-proof-intro .eyebrow",
+  ".case-proof-intro h2",
+  ".case-proof-intro .section-copy",
+  ".case-callout",
   ".work-carousel",
   ".brand-section .eyebrow",
   ".logo-grid img",
   ".contact .eyebrow",
   ".contact h2",
   ".contact > p:not(.eyebrow)",
+  ".case-outcome-copy p",
   ".contact-links",
 ] : [
   ".section-intro",
   ".impact-card",
   ".process-card",
+  ".case-hero",
+  ".case-media",
   ".experience-list article",
   ".case-card",
+  ".case-comparison-row",
+  ".case-proof-intro",
+  ".case-callout",
   ".work-frame",
   ".contact h2",
+  ".case-outcome-copy",
   ".contact-links",
 ];
 const revealItems = document.querySelectorAll(revealSelectors.join(", "));
@@ -305,7 +346,7 @@ if (revealItems.length > 0 && !revealMotion.matches) {
       }
     };
 
-    window.setTimeout(requestUnfurlReveal, 4400);
+    window.setTimeout(requestUnfurlReveal, introHasPlayed ? 80 : 4400);
     window.addEventListener("scroll", requestUnfurlReveal, { passive: true });
     window.addEventListener("resize", requestUnfurlReveal);
   } else if ("IntersectionObserver" in window) {
@@ -328,7 +369,7 @@ if (revealItems.length > 0 && !revealMotion.matches) {
 }
 
 const parallaxMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const parallaxItems = document.querySelectorAll(".case-card, .work-frame img");
+const parallaxItems = document.querySelectorAll(".work-frame img");
 let parallaxTicking = false;
 
 function updateParallax() {
@@ -339,11 +380,7 @@ function updateParallax() {
     const itemCenter = rect.top + rect.height / 2;
     const progress = Math.max(-1, Math.min(1, (itemCenter - viewportCenter) / window.innerHeight));
 
-    if (item.matches(".case-card")) {
-      item.style.setProperty("--case-line-shift", `${(progress * -18).toFixed(2)}px`);
-    } else {
-      item.style.setProperty("--work-image-shift", `${(progress * -14).toFixed(2)}px`);
-    }
+    item.style.setProperty("--work-image-shift", `${(progress * -14).toFixed(2)}px`);
   });
 
   parallaxTicking = false;
