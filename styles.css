@@ -746,9 +746,9 @@ h2 {
 
 .impact-grid article {
   display: grid;
-  grid-template-rows: 176px 1fr;
+  grid-template-rows: 96px 1fr;
   align-content: start;
-  min-height: 429px;
+  min-height: 349px;
   padding: 64px 40px;
   border: 1px solid var(--line);
   border-right: 0;
@@ -870,18 +870,23 @@ h2 {
 .experience-list article {
   display: grid;
   grid-template-columns: var(--label-col) minmax(0, 1056px);
-  min-height: 287px;
-  padding: 61px 0 48px;
+  padding: 61px 0;
   border-bottom: 1px solid var(--line);
-}
-
-.experience-list article:last-child {
-  border-bottom: 0;
 }
 
 .company,
 .role-date {
   font-size: 20px;
+}
+
+.case-section {
+  border-top: 0;
+}
+
+.about-section::after,
+#record::after,
+.case-section::after {
+  display: none;
 }
 
 .experience-list h3 {
@@ -1253,12 +1258,27 @@ h2 {
   margin-top: 30px;
 }
 
+.case-study-page .case-comparison {
+  --compare-col-1: "Online Account Center";
+  --compare-col-2: "Channel Guide";
+}
+
 .case-study-verisign {
   --case-accent: var(--orange);
 }
 
+.case-study-verisign .case-comparison {
+  --compare-col-1: "Verisign.com Redesign";
+  --compare-col-2: "NameStudio + LLM";
+}
+
 .case-study-grab {
   --case-accent: var(--green);
+}
+
+.case-study-grab .case-comparison {
+  --compare-col-1: "Customer App";
+  --compare-col-2: "Courier + Fulfillment System";
 }
 
 .case-subnav {
@@ -1366,6 +1386,20 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
   margin-bottom: var(--space-inner);
 }
 
+.case-hero-main .logo-grab {
+  width: clamp(126px, 9.375vw, 180px);
+  height: auto;
+}
+
+.case-hero-wordmark {
+  color: var(--ink);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .case-hero h1 {
   max-width: 1180px;
 }
@@ -1410,10 +1444,22 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
   background: #ffffff;
 }
 
+.case-media.case-media-contained {
+  aspect-ratio: 5 / 3;
+}
+
 .case-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.case-media-contained img {
+  object-fit: contain;
+}
+
+.case-media-inline {
+  margin-top: var(--space-inner);
 }
 
 .case-objectives {
@@ -1451,7 +1497,7 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
 .case-comparison-head::after {
   position: absolute;
   left: calc(-100% / 10);
-  width: calc(100% * 12 / 10);
+  right: calc(-100% / 10);
   height: 1px;
   background: var(--line);
   content: "";
@@ -1466,6 +1512,14 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
   grid-template-columns: repeat(10, minmax(0, 1fr));
   column-gap: clamp(32px, 2.5vw, 48px);
   padding: clamp(24px, 1.667vw, 32px) 0;
+}
+
+.case-comparison-head + .case-comparison-row {
+  padding-top: var(--space-inner);
+}
+
+.case-comparison-row:last-child {
+  padding-bottom: var(--space-inner);
 }
 
 .case-comparison-row > :nth-child(1) {
@@ -1547,8 +1601,8 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
   }
 
   .impact-grid article {
-    grid-template-rows: 168px 1fr;
-    min-height: 420px;
+    grid-template-rows: 104px 1fr;
+    min-height: 0;
     padding: 48px 40px;
   }
 
@@ -1823,7 +1877,8 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
   .case-comparison::after,
   .case-comparison-head::after {
     left: 0;
-    width: 100%;
+    right: 0;
+    width: auto;
   }
 
   .case-comparison-row,
@@ -1859,11 +1914,11 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
   }
 
   .case-comparison-row p:nth-child(2)::before {
-    content: "Online Account Center";
+    content: var(--compare-col-1);
   }
 
   .case-comparison-row p:nth-child(3)::before {
-    content: "Channel Guide";
+    content: var(--compare-col-2);
   }
 
   .case-proof-copy {
@@ -1996,7 +2051,7 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
 
   .impact-grid article {
     grid-template-rows: auto auto;
-    gap: 46px;
+    gap: 42px;
     min-height: 0;
     padding: 32px 28px 36px;
   }
@@ -2059,7 +2114,7 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
     gap: 24px;
   }
 
-  .case-media {
+  .case-media:not(.case-media-contained) {
     aspect-ratio: 4 / 3;
   }
 
