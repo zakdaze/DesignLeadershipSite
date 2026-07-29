@@ -83,12 +83,83 @@ const workFrame = document.querySelector(".work-frame");
 const workImage = document.querySelector(".work-frame img");
 const workLabel = document.querySelector(".work-label");
 const workBars = document.querySelector(".slider-bars");
-const workPlaceholderImage = "assets/additional-work.png";
-const additionalWorkSlides = Array.from({ length: 15 }, (_, index) => ({
-  image: workPlaceholderImage,
-  alt: index === 1 ? "Washington Wizards homepage design" : `Additional work carousel slide ${index + 1}`,
-  label: index === 1 ? "Washington Wizards" : `Additional Work ${String(index + 1).padStart(2, "0")}`,
-}));
+const additionalWorkSlides = [
+  {
+    image: "assets/carousel-01-grab-user-app.webp",
+    alt: "Grab user app screens",
+    label: "Grab user app",
+  },
+  {
+    image: "assets/carousel-02-wizards-home-page-mobile.webp",
+    alt: "Wizards purchase page and mobile app",
+    label: "Wizards purchase page and mobile app",
+  },
+  {
+    image: "assets/carousel-03-strictly-ebikes.webp",
+    alt: "Strictly Ebikes website, photography and brand",
+    label: "Strictly Ebikes website, photography and brand",
+  },
+  {
+    image: "assets/carousel-04-verisign-website.webp",
+    alt: "Verisign website redesign",
+    label: "Verisign website redesign",
+  },
+  {
+    image: "assets/carousel-05-grab-marketing.webp",
+    alt: "Grab marketing campaign",
+    label: "Grab marketing",
+  },
+  {
+    image: "assets/carousel-06-falafel-inc.webp",
+    alt: "Falafel Inc website",
+    label: "Falafel Inc website",
+  },
+  {
+    image: "assets/carousel-07-district-bbq.webp",
+    alt: "District BBQ website",
+    label: "District BBQ website",
+  },
+  {
+    image: "assets/carousel-08-logos-branding.webp",
+    alt: "Various logos and branding",
+    label: "Various logos and branding",
+  },
+  {
+    image: "assets/carousel-09-dslo-portal.webp",
+    alt: "DSLO Portal web app",
+    label: "DSLO Portal web app",
+  },
+  {
+    image: "assets/carousel-10-hult-prize.webp",
+    alt: "Hult Prize website",
+    label: "Hult Prize website",
+  },
+  {
+    image: "assets/carousel-11-photography.webp",
+    alt: "Photography sample",
+    label: "Photography",
+  },
+  {
+    image: "assets/carousel-12-photography.webp",
+    alt: "Photography sample",
+    label: "Photography",
+  },
+  {
+    image: "assets/carousel-13-photography.webp",
+    alt: "Photography sample",
+    label: "Photography",
+  },
+  {
+    image: "assets/carousel-14-photography.webp",
+    alt: "Photography sample",
+    label: "Photography",
+  },
+  {
+    image: "assets/carousel-15-photography.webp",
+    alt: "Photography sample",
+    label: "Photography",
+  },
+];
 let activeWorkSlide = 0;
 let workSlideTimer;
 const preloadedWorkImages = new Set();
@@ -366,37 +437,6 @@ if (revealItems.length > 0 && !revealMotion.matches) {
   } else {
     revealItems.forEach((item) => item.classList.add("is-visible"));
   }
-}
-
-const parallaxMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const parallaxItems = document.querySelectorAll(".work-frame img");
-let parallaxTicking = false;
-
-function updateParallax() {
-  const viewportCenter = window.innerHeight / 2;
-
-  parallaxItems.forEach((item) => {
-    const rect = item.getBoundingClientRect();
-    const itemCenter = rect.top + rect.height / 2;
-    const progress = Math.max(-1, Math.min(1, (itemCenter - viewportCenter) / window.innerHeight));
-
-    item.style.setProperty("--work-image-shift", `${(progress * -14).toFixed(2)}px`);
-  });
-
-  parallaxTicking = false;
-}
-
-function requestParallaxUpdate() {
-  if (!parallaxTicking) {
-    requestAnimationFrame(updateParallax);
-    parallaxTicking = true;
-  }
-}
-
-if (parallaxItems.length > 0 && !parallaxMotion.matches && window.matchMedia("(min-width: 981px)").matches) {
-  window.addEventListener("scroll", requestParallaxUpdate, { passive: true });
-  window.addEventListener("resize", requestParallaxUpdate);
-  requestParallaxUpdate();
 }
 
 const ambientCanvas = document.querySelector(".ambient-canvas");

@@ -1003,12 +1003,12 @@ h2 {
 .work-frame img {
   position: relative;
   z-index: 1;
-  width: min(84.6%, 1353px);
-  height: auto;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   opacity: 1;
-  transform: translate3d(0, var(--work-image-shift, 0px), 0);
   transition: opacity 320ms ease;
-  will-change: transform;
 }
 
 .work-frame[data-transitioning="true"] img {
