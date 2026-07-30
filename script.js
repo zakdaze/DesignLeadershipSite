@@ -5,6 +5,9 @@ const pageParams = new URLSearchParams(window.location.search);
 const unfurlModeParam = pageParams.get("unfurl");
 const unfurlMode = unfurlModeParam === "all" || unfurlModeParam === "down" ? unfurlModeParam : "down";
 const introStorageKey = "zak-site-intro-seen";
+const introMinimumMs = 800;
+const introMaximumMs = 2600;
+const introExitMs = 1120;
 let introHasPlayed = false;
 
 try {
@@ -20,20 +23,79 @@ if (unfurlMode) {
 if (introHasPlayed) {
   document.body.dataset.introSeen = "true";
   document.body.dataset.introActive = "false";
+  document.body.dataset.introSkipped = "true";
 } else {
   window.scrollTo(0, 0);
 
-  window.setTimeout(() => {
+  const finishIntro = () => {
     window.scrollTo(0, 0);
+    document.body.dataset.introExiting = "true";
+
+    window.setTimeout(() => {
+      document.body.dataset.introActive = "false";
+      document.body.dataset.introSeen = "true";
+      document.body.dataset.introExiting = "false";
+      document.body.dataset.introSkipped = "true";
+
+      try {
+        window.sessionStorage.setItem(introStorageKey, "true");
+      } catch (error) {
+        // Ignore private-mode storage failures; the intro still completes normally.
+      }
+
+      window.dispatchEvent(new CustomEvent("intro:complete"));
+    }, introExitMs);
+  };
+
+  const finishIntroImmediately = () => {
     document.body.dataset.introActive = "false";
     document.body.dataset.introSeen = "true";
+    document.body.dataset.introExiting = "false";
+    document.body.dataset.introSkipped = "true";
 
     try {
       window.sessionStorage.setItem(introStorageKey, "true");
     } catch (error) {
       // Ignore private-mode storage failures; the intro still completes normally.
     }
-  }, 4300);
+
+    window.dispatchEvent(new CustomEvent("intro:complete"));
+  };
+
+  const waitForImage = (image) => {
+    if (!image || image.complete) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      image.addEventListener("load", resolve, { once: true });
+      image.addEventListener("error", resolve, { once: true });
+    });
+  };
+
+  const waitForCriticalAssets = () => {
+    const criticalImages = [
+      ...document.querySelectorAll(".profile-image, .work-frame img, .case-hero-logo"),
+    ];
+    const fontReady = document.fonts ? document.fonts.ready : Promise.resolve();
+
+    return Promise.all([
+      fontReady.catch(() => undefined),
+      ...criticalImages.map(waitForImage),
+    ]);
+  };
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    finishIntroImmediately();
+  } else {
+    Promise.race([
+      Promise.all([
+        waitForCriticalAssets(),
+        new Promise((resolve) => window.setTimeout(resolve, introMinimumMs)),
+      ]),
+      new Promise((resolve) => window.setTimeout(resolve, introMaximumMs)),
+    ]).then(finishIntro);
+  }
 }
 
 function setHeaderScrolled() {
@@ -420,7 +482,13 @@ if (revealItems.length > 0 && !revealMotion.matches) {
       }
     };
 
-    window.setTimeout(requestUnfurlReveal, introHasPlayed ? 80 : 4400);
+    if (introHasPlayed || document.body.dataset.introSeen === "true") {
+      window.setTimeout(requestUnfurlReveal, 80);
+    } else {
+      window.addEventListener("intro:complete", () => {
+        window.setTimeout(requestUnfurlReveal, 80);
+      }, { once: true });
+    }
     window.addEventListener("scroll", requestUnfurlReveal, { passive: true });
     window.addEventListener("resize", requestUnfurlReveal);
   } else if ("IntersectionObserver" in window) {

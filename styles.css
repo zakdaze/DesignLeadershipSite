@@ -219,7 +219,6 @@ body[data-unfurl="all"] .hero-actions {
   background: var(--ink);
   pointer-events: none;
   transform: translate3d(0, 0, 0);
-  animation: introVeilUp 1080ms cubic-bezier(0.76, 0, 0.24, 1) forwards 2800ms;
 }
 
 .intro-label {
@@ -239,7 +238,15 @@ body[data-unfurl="all"] .hero-actions {
   text-align: center;
   text-transform: uppercase;
   transform: translate3d(-50%, -50%, 0);
-  animation: introLabelIn 520ms ease forwards 180ms, introLabelOut 360ms ease forwards 3150ms;
+  animation: introLabelIn 420ms ease forwards 140ms;
+}
+
+body[data-intro-exiting="true"] .intro-veil {
+  animation: introVeilUp 960ms cubic-bezier(0.76, 0, 0.24, 1) forwards 140ms;
+}
+
+body[data-intro-exiting="true"] .intro-label {
+  animation: introLabelOut 300ms ease forwards;
 }
 
 body[data-intro-seen="true"] .intro-veil,
@@ -349,11 +356,17 @@ main {
   backdrop-filter: blur(18px);
   opacity: 0;
   transform: translate3d(0, -100%, 0);
-  animation: navDropIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 3980ms;
   transition: min-height 240ms cubic-bezier(0.22, 1, 0.36, 1), background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
 }
 
-body[data-intro-seen="true"] .site-header {
+body[data-intro-exiting="true"] .site-header {
+  animation: navDropIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 600ms;
+}
+
+body[data-intro-skipped="true"] .site-header,
+body[data-intro-skipped="true"] .hero h1,
+body[data-intro-skipped="true"] .hero-aside p,
+body[data-intro-skipped="true"] .hero-actions {
   opacity: 1;
   transform: none;
   animation: none;
@@ -558,7 +571,6 @@ h1 {
 .hero h1 {
   opacity: 0;
   transform: translate3d(0, 14px, 0);
-  animation: heroAsideIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 4140ms;
 }
 
 .hero-aside {
@@ -569,23 +581,31 @@ h1 {
 .hero-actions {
   opacity: 0;
   transform: translate3d(0, 14px, 0);
+}
+
+body[data-intro-exiting="true"] .hero h1 {
+  animation: heroAsideIn 760ms cubic-bezier(0.22, 1, 0.36, 1) forwards 760ms;
+}
+
+body[data-intro-exiting="true"] .hero-aside p,
+body[data-intro-exiting="true"] .hero-actions {
   animation: heroAsideIn 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.hero-aside p:nth-of-type(1) {
-  animation-delay: 4380ms;
+body[data-intro-exiting="true"] .hero-aside p:nth-of-type(1) {
+  animation-delay: 900ms;
 }
 
-.hero-aside p:nth-of-type(2) {
-  animation-delay: 4500ms;
+body[data-intro-exiting="true"] .hero-aside p:nth-of-type(2) {
+  animation-delay: 1020ms;
 }
 
-.hero-aside p:nth-of-type(3) {
-  animation-delay: 4620ms;
+body[data-intro-exiting="true"] .hero-aside p:nth-of-type(3) {
+  animation-delay: 1140ms;
 }
 
-.hero-actions {
-  animation-delay: 4780ms;
+body[data-intro-exiting="true"] .hero-actions {
+  animation-delay: 1300ms;
 }
 
 .hero-aside p,
