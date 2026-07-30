@@ -218,7 +218,7 @@ function renderWorkBars() {
   updateWorkBars();
 }
 
-function updateWorkSlideState(syncBars = true) {
+function updateWorkSlideState(syncBars = true, preloadPrevious = true) {
   const slide = additionalWorkSlides[activeWorkSlide];
 
   if (!slide || !workImage || !workLabel || !workBars) {
@@ -234,7 +234,10 @@ function updateWorkSlideState(syncBars = true) {
   }
 
   preloadWorkSlide((activeWorkSlide + 1) % additionalWorkSlides.length);
-  preloadWorkSlide((activeWorkSlide - 1 + additionalWorkSlides.length) % additionalWorkSlides.length);
+
+  if (preloadPrevious) {
+    preloadWorkSlide((activeWorkSlide - 1 + additionalWorkSlides.length) % additionalWorkSlides.length);
+  }
 }
 
 function updateWorkBars() {
@@ -280,7 +283,7 @@ function setWorkSlide(index) {
 
 if (workFrame && workImage && workLabel && workBars && additionalWorkSlides.length > 0) {
   renderWorkBars();
-  updateWorkSlideState();
+  updateWorkSlideState(true, false);
 
   workFrame.addEventListener("click", () => {
     setWorkSlide((activeWorkSlide + 1) % additionalWorkSlides.length);
