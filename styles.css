@@ -591,7 +591,7 @@ h1 {
 .hero-aside p,
 .section-copy,
 .closing-line,
-.about-copy p,
+.about-copy p:not(.eyebrow),
 .contact > p:not(.eyebrow),
 .case-hero-copy p,
 .case-proof-copy,
