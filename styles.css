@@ -41,6 +41,10 @@ body {
   text-rendering: geometricPrecision;
 }
 
+.not-found-page {
+  background: var(--ink);
+}
+
 body[data-intro-active="true"] {
   height: 100vh;
   overflow: hidden;
@@ -1216,6 +1220,7 @@ h2 {
   color: var(--paper);
 }
 
+.contact h1,
 .contact h2 {
   max-width: var(--content);
   margin-top: 64px;
@@ -2009,6 +2014,7 @@ body[data-unfurl="all"][data-reveal="true"] .case-hero-rule.reveal-item.is-visib
     font-size: clamp(40px, 11.5vw, 58px);
   }
 
+  .contact h1,
   .contact h2 {
     font-size: clamp(48px, 13vw, 68px);
     margin-top: 42px;
